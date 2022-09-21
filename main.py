@@ -6,7 +6,7 @@ import os
 from nltk.corpus import stopwords as sw
 
 # To process the first five files
-files_to_process = ['reut2-000.sgm', 'reut2-001.sgm', 'reut2-002.sgm', 'reut2-003.sgm', 'reut2-004.sgm']
+files_to_process = ['reut2-000.sgm' 'reut2-001.sgm', 'reut2-002.sgm', 'reut2-003.sgm', 'reut2-004.sgm']
 
 """
 This function will be used to remove any lines before and after the html tag <BODY></BODY>
@@ -124,8 +124,10 @@ if __name__ == "__main__":
     for file in files:
         # calling read_doc function to read the project directory
         raw = read_doc(file, 'reuters21578')
+        # print('raw', raw)
         # get_pure_sentences to retrieve the temporary senteces in reuters
         temp_sentences = get_pure_sentences(raw)
+
         # merging the files into one array rather than a multidimensional
         sentences.extend(temp_sentences)
 
@@ -142,4 +144,4 @@ if __name__ == "__main__":
     filter_words = filter_stop_words(stemmer_words)
 
     # pretty print the filter_words
-    pprint.pp(filter_words)
+    print(filter_words)
