@@ -1,62 +1,37 @@
-import pprint
+"""
+Tarek Bari 40131955
+COMP 479
+Project 1
+"""
 
 import nltk
-import re
 import os
+
+from nltk import RegexpTokenizer
 from nltk.corpus import stopwords as sw
 
 # To process the first five files
-files_to_process = ['reut2-000.sgm' 'reut2-001.sgm', 'reut2-002.sgm', 'reut2-003.sgm', 'reut2-004.sgm']
+files_to_process = ['reut2-000.sgm', 'reut2-001.sgm', 'reut2-002.sgm', 'reut2-003.sgm', 'reut2-004.sgm']
 
 """
-This function will be used to remove any lines before and after the html tag <BODY></BODY>
-@:param lines will be used to read the lines of the .sgm files 
-"""
-
-
-def get_pure_sentences(lines):
-    valid_lines = []
-    not_done = True
-    i = 0
-    while not_done:
-        match = re.search(r'.*<BODY>', lines[i])
-        if match:
-            first_line = True
-            not_end = True
-            while not_done and not_end:
-                matchb = re.search(r'.*</BODY>', lines[i])
-                if matchb:
-                    not_end = False
-                else:
-                    if first_line:
-                        sentence = re.sub(r'.*<BODY>', "", lines[i])
-                        valid_lines.append(sentence)
-                    else:
-                        valid_lines.append(lines[i])
-                i += 1
-                if i == len(lines):
-                    not_done = False
-        else:
-            if not_done:
-                i += 1
-                if i == len(lines):
-                    not_done = False
-    return valid_lines
-
-
-"""
-This function is used to read and clean the filenames while having a latin-1 encoded
-@:param filename used for the .sgm file names
-@:param path used to set the directory
+This function is used to read and clean the filenames while having a latin-1 encoded while also removing any lines 
+before and after the html tags. 
+@:param folder used to process the reuters21578 file directory 
+@:param files_to_process will be processing the first five selected fiels 
 """
 
 
-def read_doc(filename, path):
-    filename = path + '/' + filename
-    with open(filename, encoding='latin-1') as file:
-        lines = file.readlines()
-        lines = [line.rstrip() for line in lines]
-    return lines
+def process_readable_files(folder='reuters21578', files_to_process=files_to_process):
+    # loop files directory using os.listidir()
+    files = [f for f in os.listdir(folder) if f in files_to_process]
+    sentences = []
+    for file in files:
+        get_pure_sentences = open(f'reuters21578/{file}', encoding='latin-1').read()
+        tokenizer = RegexpTokenizer('\s+|<[^>]*>|&#[\d+][\S+]|;', gaps=True)
+        raw = tokenizer.tokenize(get_pure_sentences)
+        sentences.append(' '.join(raw))
+
+    return sentences
 
 
 """
@@ -65,7 +40,7 @@ The function is used to tokenize each word found in the files using the ntlk.wor
 """
 
 
-def tokenizer(lines):
+def tokenize(lines):
     words = []
     for res in lines:
         word = nltk.word_tokenize(res)
@@ -114,25 +89,13 @@ def filter_stop_words(words, stop_words=sw.words('english')):
     return filtered_words
 
 
-# if f in files_to_process
 if __name__ == "__main__":
-    # loop files directory using os.listidir()
-    # if re.match(r'.*\.sgm', f)
-    files = [f for f in os.listdir('reuters21578') if f in files_to_process]
-
-    sentences = []
-    for file in files:
-        # calling read_doc function to read the project directory
-        raw = read_doc(file, 'reuters21578')
-        # print('raw', raw)
-        # get_pure_sentences to retrieve the temporary senteces in reuters
-        temp_sentences = get_pure_sentences(raw)
-
-        # merging the files into one array rather than a multidimensional
-        sentences.extend(temp_sentences)
+    docs_to_read = []
+    # process and read reuters files
+    docs_to_read = process_readable_files()
 
     # tokenize each words
-    words = tokenizer(sentences)
+    words = tokenize(docs_to_read)
 
     # meant to lower case the words tokenized
     lower_case_words = lowercase(words)
@@ -142,6 +105,3 @@ if __name__ == "__main__":
 
     # filter the stop_words
     filter_words = filter_stop_words(stemmer_words)
-
-    # pretty print the filter_words
-    print(filter_words)
